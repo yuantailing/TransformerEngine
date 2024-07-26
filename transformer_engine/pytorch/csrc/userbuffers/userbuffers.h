@@ -12,7 +12,6 @@
 #include "cuda_runtime.h"
 #include <pthread.h>
 #include <chrono>
-#include "gdrapi.h"
 #include <stdexcept>
 
 #define NVTE_MAX_REGIONS 16
@@ -124,7 +123,6 @@ struct communicator {
 
   int *hostflags;
   int *flags, *map_flags;
-  gdr_t g;
 
   struct sharp_coll_context *sharp_coll_context;
   struct sharp_coll_comm *sharp_coll_comm;

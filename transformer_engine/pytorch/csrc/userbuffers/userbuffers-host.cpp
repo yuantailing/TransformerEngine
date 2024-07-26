@@ -381,23 +381,6 @@ int create_communicator_grouped2(communicator **comm, int pipegpus, int pipenode
       reinterpret_cast<int *>(((CUdeviceptr)(*comm)->flags + GPU_PAGE_SIZE - 1) & GPU_PAGE_MASK);
 
   using namespace std;
-  (*comm)->g = gdr_open();
-  if ((*comm)->g == NULL) {
-    fprintf(stderr, "gdrcopy open failed\n");
-    return -1;
-  }
-  gdr_mh_t mh;
-  ret = gdr_pin_buffer((*comm)->g, (CUdeviceptr)(*comm)->flags, GPU_PAGE_SIZE, 0, 0, &mh);
-  if (ret) {
-    fprintf(stderr, "gdr_pin_buffer failed\n");
-    return -1;
-  }
-  ret = gdr_map((*comm)->g, mh, (void **)&((*comm)->map_flags), GPU_PAGE_SIZE);  // NOLINT(*)
-
-  if (ret) {
-    fprintf(stderr, "gdr_map failed\n");
-    return -1;
-  }
   sched_param param;
   pthread_attr_t attr;
   pthread_attr_init(&attr);
@@ -429,7 +412,6 @@ void destroy_communicator(communicator *comm) {
   comm->activeproxy = 0;
   if (!comm->myrank && getenv("NVTE_UBDEBUG"))
     printf("waiting for userbuffers proxy thread to exit()\n");
-  gdr_close(comm->g);
 }
 
 int register_user_buffer_collective(void **gpubuff, size_t bytes, communicator *comm, bool alloc) {
